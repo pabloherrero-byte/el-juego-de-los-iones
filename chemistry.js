@@ -70,6 +70,26 @@ export function oxygenHalideCompound(h){
  };
 }
 
+// Peróxidos: contienen el grupo O2^2−; cada O tiene estado de oxidación −1 y el grupo O2 no se simplifica.
+export function peroxideCompound(m){
+ const g=gcd(m.charge,2),metalCount=2/g,peroxideGroups=m.charge/g,oxygenCount=2*peroxideGroups;
+ const formula=`${m.symbol}${metalCount>1?metalCount:""}O${oxygenCount>1?oxygenCount:""}`;
+ const variable=new Set(CATIONS.filter(x=>x.symbol===m.symbol).map(x=>x.charge)).size>1;
+ const systematic=`${oxygenCount>1?multiplicativePrefix(oxygenCount):""}óxido de ${metalCount>1?multiplicativePrefix(metalCount):""}${m.name}`;
+ const stock=`peróxido de ${m.name}${variable?` (${roman(m.charge)})`:""}`;
+ return{
+  special:true,peroxide:true,family:"peroxide",
+  cation:m,anion:{symbol:"O2",name:"peróxido",charge:-2,polyatomic:true,family:"peroxide"},
+  formula,stockName:stock,systematicName:systematic,
+  explanation:[
+   "1. Un peróxido contiene el grupo O₂²⁻; en él cada átomo de oxígeno tiene estado de oxidación −1.",
+   `2. El ${m.name} actúa con estado de oxidación +${m.charge} y el grupo peróxido tiene carga −2.`,
+   "3. Ajustamos la proporción para que la carga total sea cero, manteniendo siempre unido el grupo O₂.",
+   `4. Fórmula final: ${formula}. El O₂ propio del peróxido no se simplifica como si fuera un óxido.`,
+   `5. Nomenclatura de composición: ${systematic}. Nomenclatura de estado de oxidación: ${stock}.`
+  ]
+ };
+}
 // Hidruros metálicos: el metal se escribe primero y H actúa con estado de oxidación −1.
 export function metalHydrideCompound(m){
  const n=m.charge,formula=`${m.symbol}H${n>1?n:""}`;
@@ -127,7 +147,7 @@ export function hydrogenNonmetalCompound(h){
   ]
  };
 }
-export const FAMILY_NAMES={all:"Todos los compuestos",binary:"Compuestos binarios",metalhydride:"Hidruros metálicos",hydrogen:"Binarios del hidrógeno",oxygenhalide:"Haluros de oxígeno",hydroxide:"Hidróxidos",oxosalt:"Oxosales",acidsalt:"Sales ácidas"};
+export const FAMILY_NAMES={all:"Todos los compuestos",binary:"Compuestos binarios",peroxide:"Peróxidos",metalhydride:"Hidruros metálicos",hydrogen:"Binarios del hidrógeno",oxygenhalide:"Haluros de oxígeno",hydroxide:"Hidróxidos",oxosalt:"Oxosales",acidsalt:"Sales ácidas"};
 const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a),lcm=(a,b)=>Math.abs(a*b)/gcd(a,b),roman=n=>({1:"I",2:"II",3:"III",4:"IV",5:"V",6:"VI",7:"VII"}[n]||String(n)),prefix=["","mono","di","tri","tetra","penta","hexa"];
 export function subscripts(c,a){const g=gcd(c.charge,a.charge);return{c:Math.abs(a.charge)/g,a:Math.abs(c.charge)/g}}
 const part=(ion,n)=>`${ion.polyatomic&&n>1?"("+ion.symbol+")":ion.symbol}${n>1?n:""}`;
@@ -151,6 +171,7 @@ export function getSystematicName(c,a){
  return `${an} de ${cat}`;
 }
 export function allowedNomenclatures(compound){
+ if(compound.peroxide)return["formula","stock","systematic"];
  if(compound.metalHydride)return["formula","stock","systematic"];
  if(compound.hydrogenSpecial)return["formula","systematic"];
  if(compound.special)return["formula","systematic"];
@@ -197,6 +218,11 @@ const LEVEL={easy:1,medium:2,hard:3,expert:4};
 export function randomCompound({difficulty="medium",family="all"}={}){
  const level=LEVEL[difficulty]||2;
  let cs=CATIONS.filter(x=>x.level<=level);
+ // Desde nivel medio pueden aparecer peróxidos metálicos.
+ if(difficulty!=="easy"&&(family==="all"||family==="binary"||family==="peroxide")&&Math.random()<0.16){
+   const metals=cs.filter(x=>x.symbol!=="NH4");
+   return peroxideCompound(metals[Math.floor(Math.random()*metals.length)]);
+ }
  // Desde nivel medio pueden aparecer hidruros metálicos.
  if(difficulty!=="easy"&&(family==="all"||family==="binary"||family==="metalhydride")&&Math.random()<0.18){
    const metals=cs.filter(x=>x.symbol!=="NH4");
