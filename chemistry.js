@@ -33,12 +33,13 @@ export function getSystematicName(c,a){const n=subscripts(c,a);if(a.polyatomic)r
 export function formatIon(ion){const m=Math.abs(ion.charge),s=ion.charge>0?"+":"−";return ion.symbol+`<sup>${m===1?"":m}${s}</sup>`}
 export function explainFormula(c,a){
  const n=subscripts(c,a),m=lcm(Math.abs(c.charge),Math.abs(a.charge)),positive=n.c*c.charge,negative=n.a*a.charge;
+ const rawC=Math.abs(a.charge),rawA=Math.abs(c.charge),needsSimplify=gcd(rawC,rawA)>1;
  const steps=[
   `1. Identificamos las cargas: ${c.symbol} tiene +${c.charge} y ${a.symbol} tiene ${a.charge}.`,
-  `2. Calculamos el m.c.m. de ${Math.abs(c.charge)} y ${Math.abs(a.charge)}: m.c.m. = ${m}.`,
-  `3. Para alcanzar ${m} unidades de carga necesitamos ${n.c} ${c.symbol} y ${n.a} ${a.symbol}.`,
-  `4. Comprobación de neutralidad: ${n.c} × (+${c.charge}) = +${positive} y ${n.a} × (${a.charge}) = ${negative}; suma total = 0.`
+  `2. Intercambiamos los estados de oxidación (sin signo) y los colocamos como subíndices: ${c.symbol} recibe ${rawC} y ${a.symbol} recibe ${rawA}.`
  ];
+ if(needsSimplify)steps.push(`3. Simplificamos los subíndices hasta obtener la proporción mínima: ${n.c} : ${n.a}.`);
+ steps.push(`4. Comprobación de neutralidad: ${n.c} × (+${c.charge}) = +${positive} y ${n.a} × (${a.charge}) = ${negative}; suma total = 0.`);
  if((c.polyatomic&&n.c>1)||(a.polyatomic&&n.a>1))steps.push("5. Como un ion poliatómico aparece más de una vez, se escribe entre paréntesis antes de colocar su subíndice.");
  steps.push(`Fórmula final: ${generateFormula(c,a)}.`);
  return steps;
