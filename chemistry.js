@@ -69,7 +69,46 @@ export function oxygenHalideCompound(h){
   ]
  };
 }
-export const FAMILY_NAMES={all:"Todos los compuestos",binary:"Compuestos binarios",oxygenhalide:"Haluros de oxígeno",hydroxide:"Hidróxidos",oxosalt:"Oxosales",acidsalt:"Sales ácidas"};
+
+// Compuestos binarios del hidrógeno con no metales.
+// Grupos 13-15: hidruros covalentes con nombre de composición y, cuando procede, nombre tradicional.
+// Grupos 16-17: haluros/calcogenuros de hidrógeno; en disolución acuosa se nombran como hidrácidos.
+export const HYDROGEN_NONMETALS=[
+ {formula:"BH3",element:"B",name:"boro",oxidation:3,systematic:"trihidruro de boro",traditional:"borano",group:13},
+ {formula:"CH4",element:"C",name:"carbono",oxidation:4,systematic:"tetrahidruro de carbono",traditional:"metano",group:14},
+ {formula:"SiH4",element:"Si",name:"silicio",oxidation:4,systematic:"tetrahidruro de silicio",traditional:"silano",group:14},
+ {formula:"GeH4",element:"Ge",name:"germanio",oxidation:4,systematic:"tetrahidruro de germanio",traditional:"germano",group:14},
+ {formula:"NH3",element:"N",name:"nitrógeno",oxidation:3,systematic:"trihidruro de nitrógeno",traditional:"amoniaco",group:15},
+ {formula:"PH3",element:"P",name:"fósforo",oxidation:3,systematic:"trihidruro de fósforo",traditional:"fosfina",group:15},
+ {formula:"AsH3",element:"As",name:"arsénico",oxidation:3,systematic:"trihidruro de arsénico",traditional:"arsina",group:15},
+ {formula:"SbH3",element:"Sb",name:"antimonio",oxidation:3,systematic:"trihidruro de antimonio",traditional:"estibina",group:15},
+ {formula:"HF",element:"F",name:"flúor",systematic:"fluoruro de hidrógeno",acid:"ácido fluorhídrico",group:17},
+ {formula:"HCl",element:"Cl",name:"cloro",systematic:"cloruro de hidrógeno",acid:"ácido clorhídrico",group:17},
+ {formula:"HBr",element:"Br",name:"bromo",systematic:"bromuro de hidrógeno",acid:"ácido bromhídrico",group:17},
+ {formula:"HI",element:"I",name:"yodo",systematic:"yoduro de hidrógeno",acid:"ácido yodhídrico",group:17},
+ {formula:"H2S",element:"S",name:"azufre",systematic:"sulfuro de hidrógeno",acid:"ácido sulfhídrico",group:16},
+ {formula:"H2Se",element:"Se",name:"selenio",systematic:"seleniuro de hidrógeno",acid:"ácido selenhídrico",group:16},
+ {formula:"H2Te",element:"Te",name:"teluro",systematic:"telururo de hidrógeno",acid:"ácido telurhídrico",group:16}
+];
+export function hydrogenNonmetalCompound(h){
+ const upper=h.group<=15;
+ return{
+  special:true,hydrogenSpecial:true,family:"hydrogen",
+  cation:{symbol:"H",name:"hidrógeno",charge:upper?-1:1,polyatomic:false},
+  anion:{symbol:h.element,name:h.name,charge:upper?h.oxidation:(h.group===17?-1:-2),polyatomic:false},
+  formula:h.formula,stockName:h.traditional||h.systematic,systematicName:h.systematic,traditionalName:h.traditional||null,acidName:h.acid||null,
+  explanation:upper?[
+   `1. Es un compuesto binario del hidrógeno con un elemento del grupo ${h.group}.`,
+   `2. Su fórmula es ${h.formula} y por nomenclatura de composición se nombra ${h.systematic}.`,
+   `3. También presenta el nombre tradicional ${h.traditional}.`
+  ]:[
+   `1. Es un compuesto binario del hidrógeno con un elemento del grupo ${h.group}.`,
+   `2. Como compuesto puro/gaseoso se nombra ${h.systematic}.`,
+   `3. Si aparece ${h.formula}(aq), «(aq)» indica que está en disolución acuosa y entonces se denomina ${h.acid}.`
+  ]
+ };
+}
+export const FAMILY_NAMES={all:"Todos los compuestos",binary:"Compuestos binarios",hydrogen:"Binarios del hidrógeno",oxygenhalide:"Haluros de oxígeno",hydroxide:"Hidróxidos",oxosalt:"Oxosales",acidsalt:"Sales ácidas"};
 const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a),lcm=(a,b)=>Math.abs(a*b)/gcd(a,b),roman=n=>({1:"I",2:"II",3:"III",4:"IV",5:"V",6:"VI",7:"VII"}[n]||String(n)),prefix=["","mono","di","tri","tetra","penta","hexa"];
 export function subscripts(c,a){const g=gcd(c.charge,a.charge);return{c:Math.abs(a.charge)/g,a:Math.abs(c.charge)/g}}
 const part=(ion,n)=>`${ion.polyatomic&&n>1?"("+ion.symbol+")":ion.symbol}${n>1?n:""}`;
@@ -93,6 +132,7 @@ export function getSystematicName(c,a){
  return `${an} de ${cat}`;
 }
 export function allowedNomenclatures(compound){
+ if(compound.hydrogenSpecial)return["formula","systematic"];
  if(compound.special)return["formula","systematic"];
  if(compound.anion?.family==="acidsalt")return["formula","stock"];
  return["formula","stock",...(compound.systematicName?["systematic"]:[])];
@@ -137,6 +177,11 @@ const LEVEL={easy:1,medium:2,hard:3,expert:4};
 export function randomCompound({difficulty="medium",family="all"}={}){
  const level=LEVEL[difficulty]||2;
  let cs=CATIONS.filter(x=>x.level<=level);
+ // Desde nivel medio se incorporan también compuestos binarios del hidrógeno.
+ if(difficulty!=="easy"&&(family==="all"||family==="binary"||family==="hydrogen")&&Math.random()<0.20){
+   const h=HYDROGEN_NONMETALS[Math.floor(Math.random()*HYDROGEN_NONMETALS.length)];
+   return hydrogenNonmetalCompound(h);
+ }
  // Desde nivel medio pueden aparecer haluros de oxígeno dentro de los compuestos binarios.
  if(difficulty!=="easy"&&(family==="all"||family==="binary")&&Math.random()<0.18){
    const h=OXYGEN_HALIDES[Math.floor(Math.random()*OXYGEN_HALIDES.length)];
