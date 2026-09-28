@@ -23,6 +23,15 @@ export const ANIONS=[
 ["HCO3","hidrogenocarbonato",-1,true,"acidsalt",3],["HSO3","hidrogenosulfito",-1,true,"acidsalt",3]
 ].map(([symbol,name,charge,polyatomic=false,family="binary",level=1])=>({symbol,name,charge,polyatomic,family,level}));
 
+const OXO_SYSTEMATIC={
+ NO3:"trioxonitrato (V)",NO2:"dioxonitrato (III)",
+ SO4:"tetraoxosulfato (VI)",SO3:"trioxosulfato (IV)",
+ CO3:"trioxocarbonato (IV)",PO4:"tetraoxofosfato (V)",PO3:"trioxofosfato (III)",
+ ClO:"oxoclorato (I)",ClO2:"dioxoclorato (III)",ClO3:"trioxoclorato (V)",ClO4:"tetraoxoclorato (VII)",
+ MnO4:"tetraoxomanganato (VII)",CrO4:"tetraoxocromato (VI)",Cr2O7:"heptaoxodicromato (VI)"
+};
+
+
 
 // Combinaciones especiales oxígeno-halógeno (Cl, Br, I).
 // En la convención didáctica empleada, O se escribe a la izquierda y el halógeno a la derecha.
@@ -66,7 +75,28 @@ export function subscripts(c,a){const g=gcd(c.charge,a.charge);return{c:Math.abs
 const part=(ion,n)=>`${ion.polyatomic&&n>1?"("+ion.symbol+")":ion.symbol}${n>1?n:""}`;
 export function generateFormula(c,a){const n=subscripts(c,a);return part(c,n.c)+part(a,n.a)}
 export function getStockName(c,a){const variable=new Set(CATIONS.filter(x=>x.symbol===c.symbol).map(x=>x.charge)).size>1;return `${a.name} de ${c.name}${variable?`(${roman(c.charge)})`:""}`}
-export function getSystematicName(c,a){const n=subscripts(c,a);if(a.polyatomic)return getStockName(c,a);let an=a.symbol==="O"?(n.a>1?`${prefix[n.a]}óxido`:"óxido"):(n.a>1?`${prefix[n.a]}${a.name}`:a.name);let cat=n.c>1?`${prefix[n.c]}${c.name}`:c.name;return `${an} de ${cat}`}
+export function getSystematicName(c,a){
+ const n=subscripts(c,a);
+ if(a.family==="hydroxide")return `${n.a>1?prefix[n.a]:""}hidróxido de ${n.c>1?prefix[n.c]:""}${c.name}`;
+ if(a.family==="oxosalt"){
+   const base=OXO_SYSTEMATIC[a.symbol];
+   if(!base)return null;
+   const variable=new Set(CATIONS.filter(x=>x.symbol===c.symbol).map(x=>x.charge)).size>1;
+   return `${n.a>1?prefix[n.a]:""}${base} de ${n.c>1?prefix[n.c]:""}${c.name}${variable?` (${roman(c.charge)})`:""}`;
+ }
+ // Para sales ácidas mantenemos el nombre de hidrógeno del ion y la nomenclatura de estado de oxidación;
+ // no se etiqueta como nomenclatura de composición hasta disponer de una regla específica validada.
+ if(a.family==="acidsalt")return null;
+ if(a.polyatomic)return null;
+ let an=a.symbol==="O"?(n.a>1?`${prefix[n.a]}óxido`:"óxido"):(n.a>1?`${prefix[n.a]}${a.name}`:a.name);
+ let cat=n.c>1?`${prefix[n.c]}${c.name}`:c.name;
+ return `${an} de ${cat}`;
+}
+export function allowedNomenclatures(compound){
+ if(compound.special)return["formula","systematic"];
+ if(compound.anion?.family==="acidsalt")return["formula","stock"];
+ return["formula","stock",...(compound.systematicName?["systematic"]:[])];
+}
 export function formatIon(ion){const m=Math.abs(ion.charge),s=ion.charge>0?"+":"−";return ion.symbol+`<sup>${m===1?"":m}${s}</sup>`}
 export function explainFormula(c,a){
  const n=subscripts(c,a),m=lcm(Math.abs(c.charge),Math.abs(a.charge)),positive=n.c*c.charge,negative=n.a*a.charge;
