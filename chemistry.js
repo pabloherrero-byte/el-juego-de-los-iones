@@ -23,6 +23,41 @@ export const ANIONS=[
 ["HCO3","hidrogenocarbonato",-1,true,"acidsalt",3],["HSO3","hidrogenosulfito",-1,true,"acidsalt",3]
 ].map(([symbol,name,charge,polyatomic=false,family="binary",level=1])=>({symbol,name,charge,polyatomic,family,level}));
 
+
+// Combinaciones especiales oxígeno-halógeno (Cl, Br, I).
+// En la convención didáctica empleada, O se escribe a la izquierda y el halógeno a la derecha.
+export const OXYGEN_HALIDES=[
+ ["Cl","cloro",1],["Cl","cloro",3],["Cl","cloro",5],["Cl","cloro",7],
+ ["Br","bromo",1],["Br","bromo",3],["Br","bromo",5],["Br","bromo",7],
+ ["I","yodo",1],["I","yodo",3],["I","yodo",5],["I","yodo",7]
+].map(([symbol,name,oxidation])=>({symbol,name,oxidation,family:"oxygenhalide"}));
+
+const multiplicativePrefix=n=>({1:"mono",2:"di",3:"tri",4:"tetra",5:"penta",6:"hexa",7:"hepta"}[n]||String(n));
+const halideRoot=s=>({Cl:"cloruro",Br:"bromuro",I:"yoduro"}[s]);
+export function generateOxygenHalide(h){
+ const g=gcd(2,h.oxidation),o=h.oxidation/g,x=2/g;
+ return{oxygenCount:o,halogenCount:x,formula:`${o>1?"O"+o:"O"}${h.symbol}${x>1?x:""}`};
+}
+export function getOxygenHalideName(h){
+ const q=generateOxygenHalide(h),hp=q.halogenCount===1?"":multiplicativePrefix(q.halogenCount),op=q.oxygenCount===1?"":multiplicativePrefix(q.oxygenCount);
+ return `${hp}${halideRoot(h.symbol)} de ${op}oxígeno`;
+}
+export function oxygenHalideCompound(h){
+ const q=generateOxygenHalide(h);
+ return{
+  special:true,family:"oxygenhalide",
+  cation:{symbol:"O",name:"oxígeno",charge:-2,polyatomic:false},
+  anion:{symbol:h.symbol,name:h.name,charge:h.oxidation,polyatomic:false},
+  formula:q.formula,stockName:getOxygenHalideName(h),systematicName:getOxygenHalideName(h),
+  explanation:[
+   `1. El oxígeno actúa con estado de oxidación −2 y el ${h.name} con +${h.oxidation}.`,
+   "2. En los haluros de oxígeno escribimos primero O y después el halógeno; es una excepción al orden habitual basado únicamente en el signo.",
+   `3. Intercambiamos los valores absolutos de los estados de oxidación y simplificamos si es posible.`,
+   `4. La fórmula resultante es ${q.formula}.`,
+   `5. Con prefijos multiplicadores se nombra: ${getOxygenHalideName(h)}.`
+  ]
+ };
+}
 export const FAMILY_NAMES={all:"Todos los compuestos",binary:"Sales binarias y óxidos",hydroxide:"Hidróxidos",oxosalt:"Oxosales",acidsalt:"Sales ácidas"};
 const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a),lcm=(a,b)=>Math.abs(a*b)/gcd(a,b),roman=n=>({1:"I",2:"II",3:"III",4:"IV",5:"V",6:"VI",7:"VII"}[n]||String(n)),prefix=["","mono","di","tri","tetra","penta","hexa"];
 export function subscripts(c,a){const g=gcd(c.charge,a.charge);return{c:Math.abs(a.charge)/g,a:Math.abs(c.charge)/g}}
@@ -70,6 +105,11 @@ const LEVEL={easy:1,medium:2,hard:3,expert:4};
 export function randomCompound({difficulty="medium",family="all"}={}){
  const level=LEVEL[difficulty]||2;
  let cs=CATIONS.filter(x=>x.level<=level);
+ // Desde nivel medio pueden aparecer haluros de oxígeno dentro de los compuestos binarios.
+ if(difficulty!=="easy"&&(family==="all"||family==="binary")&&Math.random()<0.18){
+   const h=OXYGEN_HALIDES[Math.floor(Math.random()*OXYGEN_HALIDES.length)];
+   return oxygenHalideCompound(h);
+ }
  let as;
  if(difficulty==="easy"){
    // Fácil: exclusivamente óxidos.
