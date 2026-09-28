@@ -27,14 +27,16 @@ export const ANIONS=[
 // Combinaciones especiales oxígeno-halógeno (Cl, Br, I).
 // En la convención didáctica empleada, O se escribe a la izquierda y el halógeno a la derecha.
 export const OXYGEN_HALIDES=[
+ ["F","flúor",-1],
  ["Cl","cloro",1],["Cl","cloro",3],["Cl","cloro",5],["Cl","cloro",7],
  ["Br","bromo",1],["Br","bromo",3],["Br","bromo",5],["Br","bromo",7],
  ["I","yodo",1],["I","yodo",3],["I","yodo",5],["I","yodo",7]
 ].map(([symbol,name,oxidation])=>({symbol,name,oxidation,family:"oxygenhalide"}));
 
 const multiplicativePrefix=n=>({1:"mono",2:"di",3:"tri",4:"tetra",5:"penta",6:"hexa",7:"hepta"}[n]||String(n));
-const halideRoot=s=>({Cl:"cloruro",Br:"bromuro",I:"yoduro"}[s]);
+const halideRoot=s=>({F:"fluoruro",Cl:"cloruro",Br:"bromuro",I:"yoduro"}[s]);
 export function generateOxygenHalide(h){
+ if(h.symbol==="F")return{oxygenCount:1,halogenCount:2,formula:"OF2"};
  const g=gcd(2,h.oxidation),o=h.oxidation/g,x=2/g;
  return{oxygenCount:o,halogenCount:x,formula:`${o>1?"O"+o:"O"}${h.symbol}${x>1?x:""}`};
 }
@@ -46,25 +48,25 @@ export function oxygenHalideCompound(h){
  const q=generateOxygenHalide(h);
  return{
   special:true,family:"oxygenhalide",
-  cation:{symbol:"O",name:"oxígeno",charge:-2,polyatomic:false},
+  cation:{symbol:"O",name:"oxígeno",charge:h.symbol==="F"?2:-2,polyatomic:false},
   anion:{symbol:h.symbol,name:h.name,charge:h.oxidation,polyatomic:false},
   formula:q.formula,stockName:getOxygenHalideName(h),systematicName:getOxygenHalideName(h),
   explanation:[
-   `1. El oxígeno actúa con estado de oxidación −2 y el ${h.name} con +${h.oxidation}.`,
-   "2. En los haluros de oxígeno escribimos primero O y después el halógeno; es una excepción al orden habitual basado únicamente en el signo.",
-   `3. Intercambiamos los valores absolutos de los estados de oxidación y simplificamos si es posible.`,
+   `1. ${h.symbol==="F"?"En OF₂, el flúor actúa con −1 y el oxígeno con +2.":`El oxígeno actúa con −2 y el ${h.name} con +${h.oxidation}.`}`,
+   "2. En esta familia escribimos primero O y después el halógeno.",
+   `3. ${h.symbol==="F"?"La proporción es 1 átomo de O por 2 de F.":"Intercambiamos los valores absolutos de los estados de oxidación y simplificamos si es posible."}`,
    `4. La fórmula resultante es ${q.formula}.`,
    `5. Con prefijos multiplicadores se nombra: ${getOxygenHalideName(h)}.`
   ]
  };
 }
-export const FAMILY_NAMES={all:"Todos los compuestos",binary:"Sales binarias y óxidos",hydroxide:"Hidróxidos",oxosalt:"Oxosales",acidsalt:"Sales ácidas"};
+export const FAMILY_NAMES={all:"Todos los compuestos",binary:"Compuestos binarios",oxygenhalide:"Haluros de oxígeno",hydroxide:"Hidróxidos",oxosalt:"Oxosales",acidsalt:"Sales ácidas"};
 const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a),lcm=(a,b)=>Math.abs(a*b)/gcd(a,b),roman=n=>({1:"I",2:"II",3:"III",4:"IV",5:"V",6:"VI",7:"VII"}[n]||String(n)),prefix=["","mono","di","tri","tetra","penta","hexa"];
 export function subscripts(c,a){const g=gcd(c.charge,a.charge);return{c:Math.abs(a.charge)/g,a:Math.abs(c.charge)/g}}
 const part=(ion,n)=>`${ion.polyatomic&&n>1?"("+ion.symbol+")":ion.symbol}${n>1?n:""}`;
 export function generateFormula(c,a){const n=subscripts(c,a);return part(c,n.c)+part(a,n.a)}
 export function getStockName(c,a){const variable=new Set(CATIONS.filter(x=>x.symbol===c.symbol).map(x=>x.charge)).size>1;return `${a.name} de ${c.name}${variable?`(${roman(c.charge)})`:""}`}
-export function getSystematicName(c,a){const n=subscripts(c,a);if(a.polyatomic)return getStockName(c,a);let an=a.symbol==="O"?`${prefix[n.a]}óxido`:(n.a>1?`${prefix[n.a]}${a.name}`:a.name);let cat=n.c>1?`${prefix[n.c]}${c.name}`:c.name;return `${an} de ${cat}`}
+export function getSystematicName(c,a){const n=subscripts(c,a);if(a.polyatomic)return getStockName(c,a);let an=a.symbol==="O"?(n.a>1?`${prefix[n.a]}óxido`:"óxido"):(n.a>1?`${prefix[n.a]}${a.name}`:a.name);let cat=n.c>1?`${prefix[n.c]}${c.name}`:c.name;return `${an} de ${cat}`}
 export function formatIon(ion){const m=Math.abs(ion.charge),s=ion.charge>0?"+":"−";return ion.symbol+`<sup>${m===1?"":m}${s}</sup>`}
 export function explainFormula(c,a){
  const n=subscripts(c,a),m=lcm(Math.abs(c.charge),Math.abs(a.charge)),positive=n.c*c.charge,negative=n.a*a.charge;
