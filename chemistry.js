@@ -38,8 +38,26 @@ export const checkNameAnswer=(answer,expected)=>normalize(answer)===normalize(ex
 const LEVEL={easy:1,medium:2,hard:3,expert:4};
 export function randomCompound({difficulty="medium",family="all"}={}){
  const level=LEVEL[difficulty]||2;
- let cs=CATIONS.filter(x=>x.level<=level),as=ANIONS.filter(x=>x.level<=level&&(family==="all"||x.family===family));
- if(!as.length)as=ANIONS.filter(x=>family==="all"||x.family===family);
+ let cs=CATIONS.filter(x=>x.level<=level);
+ let as;
+ if(difficulty==="easy"){
+   // Fácil: exclusivamente óxidos.
+   as=ANIONS.filter(x=>x.symbol==="O");
+ }else if(difficulty==="medium"){
+   // Medio: compuestos binarios (óxidos y sales binarias).
+   as=ANIONS.filter(x=>x.family==="binary");
+ }else if(difficulty==="hard"){
+   // Difícil: binarios y ternarios (hidróxidos y oxosales incluidas).
+   as=ANIONS.filter(x=>["binary","hydroxide","oxosalt"].includes(x.family)&&x.level<=3);
+ }else{
+   // Experto: banco completo, incluidas sales ácidas.
+   as=ANIONS.filter(x=>x.level<=4);
+ }
+ // El filtro manual por familia se aplica solo si es compatible con el nivel.
+ if(family!=="all"){
+   const filtered=as.filter(x=>x.family===family);
+   if(filtered.length)as=filtered;
+ }
  const c=cs[Math.floor(Math.random()*cs.length)],a=as[Math.floor(Math.random()*as.length)];
  return{cation:c,anion:a,family:a.family,formula:generateFormula(c,a),stockName:getStockName(c,a),systematicName:getSystematicName(c,a),explanation:explainFormula(c,a)}
 }
