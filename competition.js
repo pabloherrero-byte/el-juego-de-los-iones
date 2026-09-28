@@ -12,7 +12,7 @@ export function nextChallenge(game){
  const allowed=allowedNomenclatures(compound);
  if(!allowed.includes(type))type=allowed.includes("stock")?"stock":"formula";
  const expected=type==="formula"?compound.formula:type==="stock"?compound.stockName:compound.systematicName;
- const question=compound.special&&type==="formula"?`Formula la combinación entre oxígeno y ${compound.anion.name} con los estados de oxidación indicados.`:type==="formula"?`Formula el compuesto formado por ${compound.cation.name} y ${compound.anion.name}.`:type==="stock"?`Nombra indicando el estado de oxidación cuando sea necesario: ${compound.formula}`:`Nombra mediante nomenclatura de composición/sistemática: ${compound.formula}`;
+ const question=compound.hydrogenSpecial&&type==="formula"?`Escribe la fórmula del compuesto binario de hidrógeno con ${compound.anion.name}.`:compound.special&&type==="formula"?`Formula la combinación entre oxígeno y ${compound.anion.name} con los estados de oxidación indicados.`:type==="formula"?`Formula el compuesto formado por ${compound.cation.name} y ${compound.anion.name}.`:type==="stock"?`Nombra indicando el estado de oxidación cuando sea necesario: ${compound.formula}`:`Nombra mediante nomenclatura de composición/sistemática: ${compound.formula}`;
  game.current={...compound,type,expected,question,startedAt:Date.now()};
  return game.current
 }
