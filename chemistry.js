@@ -208,7 +208,7 @@ export function diagnoseFormulaError(answer,c,a){
 }
 export function explainName(c,a,type="stock"){
  const variable=new Set(CATIONS.filter(x=>x.symbol===c.symbol).map(x=>x.charge)).size>1;
- if(type==="stock")return variable?[`Identifica primero el anión: ${a.name}.`,`El catión es ${c.name} y en este compuesto actúa con estado de oxidación +${c.charge}.`,`Como ${c.name} presenta más de un estado de oxidación en el juego, se indica con número romano: ${roman(c.charge)}.`,`Nombre: ${getStockName(c,a)}.`]:[`Identifica el anión: ${a.name}.`,`El catión es ${c.name} y no necesita número romano en este banco de ejercicios.`,`Nombre: ${getStockName(c,a)}.`];
+ if(type==="stock")return variable?[`Identifica primero el anión: ${a.name}.`,`El catión es ${c.name} y en este compuesto actúa con estado de oxidación +${c.charge}.`,`Como ${c.name} presenta más de un estado de oxidación en el juego, se indica con número romano: ${roman(c.charge)}.`,`Nombre: ${getStockName(c,a)}.`]:[`Identifica el anión: ${a.name}.`,`El catión es ${c.name} y, al tener un único estado de oxidación, no es necesario indicarlo con número romano.`,`Nombre: ${getStockName(c,a)}.`];
  return[`Observa la proporción de átomos/iones en la fórmula ${generateFormula(c,a)}.`,`La nomenclatura solicitada es: ${getSystematicName(c,a)}.`];
 }
 const normalize=s=>String(s??"").trim().toLocaleLowerCase("es").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ");
