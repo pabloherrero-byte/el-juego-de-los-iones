@@ -70,6 +70,25 @@ export function oxygenHalideCompound(h){
  };
 }
 
+// Hidruros metálicos: el metal se escribe primero y H actúa con estado de oxidación −1.
+export function metalHydrideCompound(m){
+ const n=m.charge,formula=`${m.symbol}H${n>1?n:""}`;
+ const variable=new Set(CATIONS.filter(x=>x.symbol===m.symbol).map(x=>x.charge)).size>1;
+ const systematic=`${n>1?multiplicativePrefix(n):""}hidruro de ${m.name}`;
+ const stock=`hidruro de ${m.name}${variable?` (${roman(n)})`:""}`;
+ return{
+  special:true,metalHydride:true,family:"metalhydride",
+  cation:m,anion:{symbol:"H",name:"hidruro",charge:-1,polyatomic:false,family:"metalhydride"},
+  formula,stockName:stock,systematicName:systematic,
+  explanation:[
+   `1. En los hidruros metálicos, el metal actúa con estado de oxidación +${n} y el hidrógeno con −1.`,
+   "2. Escribimos primero el símbolo del metal y después H.",
+   `3. Intercambiamos los valores absolutos de los estados de oxidación: la fórmula es ${formula}.`,
+   `4. Nomenclatura de composición: ${systematic}.`,
+   `5. Nomenclatura de estado de oxidación: ${stock}.`
+  ]
+ };
+}
 // Compuestos binarios del hidrógeno con no metales.
 // Grupos 13-15: hidruros covalentes con nombre de composición y, cuando procede, nombre tradicional.
 // Grupos 16-17: haluros/calcogenuros de hidrógeno; en disolución acuosa se nombran como hidrácidos.
@@ -108,7 +127,7 @@ export function hydrogenNonmetalCompound(h){
   ]
  };
 }
-export const FAMILY_NAMES={all:"Todos los compuestos",binary:"Compuestos binarios",hydrogen:"Binarios del hidrógeno",oxygenhalide:"Haluros de oxígeno",hydroxide:"Hidróxidos",oxosalt:"Oxosales",acidsalt:"Sales ácidas"};
+export const FAMILY_NAMES={all:"Todos los compuestos",binary:"Compuestos binarios",metalhydride:"Hidruros metálicos",hydrogen:"Binarios del hidrógeno",oxygenhalide:"Haluros de oxígeno",hydroxide:"Hidróxidos",oxosalt:"Oxosales",acidsalt:"Sales ácidas"};
 const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a),lcm=(a,b)=>Math.abs(a*b)/gcd(a,b),roman=n=>({1:"I",2:"II",3:"III",4:"IV",5:"V",6:"VI",7:"VII"}[n]||String(n)),prefix=["","mono","di","tri","tetra","penta","hexa"];
 export function subscripts(c,a){const g=gcd(c.charge,a.charge);return{c:Math.abs(a.charge)/g,a:Math.abs(c.charge)/g}}
 const part=(ion,n)=>`${ion.polyatomic&&n>1?"("+ion.symbol+")":ion.symbol}${n>1?n:""}`;
@@ -132,6 +151,7 @@ export function getSystematicName(c,a){
  return `${an} de ${cat}`;
 }
 export function allowedNomenclatures(compound){
+ if(compound.metalHydride)return["formula","stock","systematic"];
  if(compound.hydrogenSpecial)return["formula","systematic"];
  if(compound.special)return["formula","systematic"];
  if(compound.anion?.family==="acidsalt")return["formula","stock"];
@@ -177,6 +197,11 @@ const LEVEL={easy:1,medium:2,hard:3,expert:4};
 export function randomCompound({difficulty="medium",family="all"}={}){
  const level=LEVEL[difficulty]||2;
  let cs=CATIONS.filter(x=>x.level<=level);
+ // Desde nivel medio pueden aparecer hidruros metálicos.
+ if(difficulty!=="easy"&&(family==="all"||family==="binary"||family==="metalhydride")&&Math.random()<0.18){
+   const metals=cs.filter(x=>x.symbol!=="NH4");
+   return metalHydrideCompound(metals[Math.floor(Math.random()*metals.length)]);
+ }
  // Desde nivel medio se incorporan también compuestos binarios del hidrógeno.
  if(difficulty!=="easy"&&(family==="all"||family==="binary"||family==="hydrogen")&&Math.random()<0.20){
    const h=HYDROGEN_NONMETALS[Math.floor(Math.random()*HYDROGEN_NONMETALS.length)];
