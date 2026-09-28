@@ -24,14 +24,44 @@ export const ANIONS=[
 ].map(([symbol,name,charge,polyatomic=false,family="binary",level=1])=>({symbol,name,charge,polyatomic,family,level}));
 
 export const FAMILY_NAMES={all:"Todos los compuestos",binary:"Sales binarias y óxidos",hydroxide:"Hidróxidos",oxosalt:"Oxosales",acidsalt:"Sales ácidas"};
-const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a),roman=n=>({1:"I",2:"II",3:"III",4:"IV",5:"V",6:"VI",7:"VII"}[n]||String(n)),prefix=["","mono","di","tri","tetra","penta","hexa"];
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a),lcm=(a,b)=>Math.abs(a*b)/gcd(a,b),roman=n=>({1:"I",2:"II",3:"III",4:"IV",5:"V",6:"VI",7:"VII"}[n]||String(n)),prefix=["","mono","di","tri","tetra","penta","hexa"];
 export function subscripts(c,a){const g=gcd(c.charge,a.charge);return{c:Math.abs(a.charge)/g,a:Math.abs(c.charge)/g}}
 const part=(ion,n)=>`${ion.polyatomic&&n>1?"("+ion.symbol+")":ion.symbol}${n>1?n:""}`;
 export function generateFormula(c,a){const n=subscripts(c,a);return part(c,n.c)+part(a,n.a)}
 export function getStockName(c,a){const variable=new Set(CATIONS.filter(x=>x.symbol===c.symbol).map(x=>x.charge)).size>1;return `${a.name} de ${c.name}${variable?`(${roman(c.charge)})`:""}`}
 export function getSystematicName(c,a){const n=subscripts(c,a);if(a.polyatomic)return getStockName(c,a);let an=a.symbol==="O"?`${prefix[n.a]}óxido`:(n.a>1?`${prefix[n.a]}${a.name}`:a.name);let cat=n.c>1?`${prefix[n.c]}${c.name}`:c.name;return `${an} de ${cat}`}
 export function formatIon(ion){const m=Math.abs(ion.charge),s=ion.charge>0?"+":"−";return ion.symbol+`<sup>${m===1?"":m}${s}</sup>`}
-export function explainFormula(c,a){const n=subscripts(c,a);return[`El catión ${c.name} tiene carga +${c.charge}.`,`El anión ${a.name} tiene carga ${a.charge}.`,`Para que el compuesto sea neutro se necesitan ${n.c} catión(es) y ${n.a} anión(es).`,`La fórmula resultante es ${generateFormula(c,a)}.`]}
+export function explainFormula(c,a){
+ const n=subscripts(c,a),m=lcm(Math.abs(c.charge),Math.abs(a.charge)),positive=n.c*c.charge,negative=n.a*a.charge;
+ const steps=[
+  `1. Identificamos las cargas: ${c.symbol} tiene +${c.charge} y ${a.symbol} tiene ${a.charge}.`,
+  `2. Calculamos el m.c.m. de ${Math.abs(c.charge)} y ${Math.abs(a.charge)}: m.c.m. = ${m}.`,
+  `3. Para alcanzar ${m} unidades de carga necesitamos ${n.c} ${c.symbol} y ${n.a} ${a.symbol}.`,
+  `4. Comprobación de neutralidad: ${n.c} × (+${c.charge}) = +${positive} y ${n.a} × (${a.charge}) = ${negative}; suma total = 0.`
+ ];
+ if((c.polyatomic&&n.c>1)||(a.polyatomic&&n.a>1))steps.push("5. Como un ion poliatómico aparece más de una vez, se escribe entre paréntesis antes de colocar su subíndice.");
+ steps.push(`Fórmula final: ${generateFormula(c,a)}.`);
+ return steps;
+}
+function compactFormula(s){return String(s??"").replace(/\s+/g,"").replace(/[₀-₉]/g,x=>String("₀₁₂₃₄₅₆₇₈₉".indexOf(x)))}
+export function diagnoseFormulaError(answer,c,a){
+ const given=compactFormula(answer),expected=generateFormula(c,a),n=subscripts(c,a);
+ if(!given)return"Escribe una fórmula antes de comprobar.";
+ if(given.toLowerCase()===expected.toLowerCase()&&given!==expected)return"Revisa las mayúsculas y minúsculas de los símbolos químicos.";
+ const unreduced=part(c,Math.abs(a.charge))+part(a,Math.abs(c.charge));
+ if(given===unreduced&&unreduced!==expected)return"Has cruzado correctamente las cargas, pero los subíndices tienen un divisor común. Simplifica hasta la proporción mínima.";
+ if((a.polyatomic&&n.a>1&&!given.includes("("))||(c.polyatomic&&n.c>1&&!given.includes("(")))return"Faltan paréntesis: cuando un ion poliatómico aparece más de una vez, se encierra entre paréntesis y el subíndice se coloca fuera.";
+ const reversed=part(a,n.a)+part(c,n.c);
+ if(given===reversed)return"Has escrito primero el anión. En estos compuestos se escribe primero el catión y después el anión.";
+ if(given.includes("+")||given.includes("-")||given.includes("−"))return"En la fórmula del compuesto neutro no se escriben las cargas de los iones; se compensan mediante los subíndices.";
+ if(given===c.symbol+a.symbol&&expected!==given)return"Has omitido los subíndices necesarios. Ajusta la proporción de iones hasta que la carga total sea cero.";
+ return`Comprueba la neutralidad: la suma de las cargas positivas y negativas debe ser 0. La proporción correcta es ${n.c}:${n.a}.`;
+}
+export function explainName(c,a,type="stock"){
+ const variable=new Set(CATIONS.filter(x=>x.symbol===c.symbol).map(x=>x.charge)).size>1;
+ if(type==="stock")return variable?[`Identifica primero el anión: ${a.name}.`,`El catión es ${c.name} y en este compuesto actúa con estado de oxidación +${c.charge}.`,`Como ${c.name} presenta más de un estado de oxidación en el juego, se indica con número romano: ${roman(c.charge)}.`,`Nombre: ${getStockName(c,a)}.`]:[`Identifica el anión: ${a.name}.`,`El catión es ${c.name} y no necesita número romano en este banco de ejercicios.`,`Nombre: ${getStockName(c,a)}.`];
+ return[`Observa la proporción de átomos/iones en la fórmula ${generateFormula(c,a)}.`,`La nomenclatura solicitada es: ${getSystematicName(c,a)}.`];
+}
 const normalize=s=>String(s??"").trim().toLocaleLowerCase("es").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ");
 export const checkFormulaAnswer=(answer,expected)=>normalize(answer).replace(/[₀-₉]/g,x=>"₀₁₂₃₄₅₆₇₈₉".indexOf(x))===normalize(expected);
 export const checkNameAnswer=(answer,expected)=>normalize(answer)===normalize(expected);
