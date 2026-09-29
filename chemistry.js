@@ -182,7 +182,7 @@ export function allowedNomenclatures(compound){
  if(compound.anion?.family==="acidsalt")return["formula","stock"];
  return["formula","stock",...(compound.systematicName?["systematic"]:[])];
 }
-export function formatIon(ion){const m=Math.abs(ion.charge),s=ion.charge>0?"+":"−";return ion.symbol+`<sup>${m===1?"":m}${s}</sup>`}
+export function formatIon(ion){const m=Math.abs(ion.charge),s=ion.charge>0?"+":"−",symbol=ion.symbol.replace(/(\d+)/g,"<sub>$1</sub>");return symbol+`<sup>${m===1?"":m}${s}</sup>`}
 export function explainFormula(c,a){
  const n=subscripts(c,a),m=lcm(Math.abs(c.charge),Math.abs(a.charge)),positive=n.c*c.charge,negative=n.a*a.charge;
  const rawC=Math.abs(a.charge),rawA=Math.abs(c.charge),needsSimplify=gcd(rawC,rawA)>1;
