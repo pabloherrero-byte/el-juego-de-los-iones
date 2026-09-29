@@ -121,13 +121,13 @@ export const HYDROGEN_NONMETALS=[
  {formula:"PH3",element:"P",name:"fósforo",oxidation:3,systematic:"trihidruro de fósforo",traditional:"fosfina",group:15},
  {formula:"AsH3",element:"As",name:"arsénico",oxidation:3,systematic:"trihidruro de arsénico",traditional:"arsina",group:15},
  {formula:"SbH3",element:"Sb",name:"antimonio",oxidation:3,systematic:"trihidruro de antimonio",traditional:"estibina",group:15},
- {formula:"HF",element:"F",name:"flúor",systematic:"fluoruro de hidrógeno",acid:"ácido fluorhídrico",group:17},
- {formula:"HCl",element:"Cl",name:"cloro",systematic:"cloruro de hidrógeno",acid:"ácido clorhídrico",group:17},
- {formula:"HBr",element:"Br",name:"bromo",systematic:"bromuro de hidrógeno",acid:"ácido bromhídrico",group:17},
- {formula:"HI",element:"I",name:"yodo",systematic:"yoduro de hidrógeno",acid:"ácido yodhídrico",group:17},
- {formula:"H2S",element:"S",name:"azufre",systematic:"sulfuro de hidrógeno",acid:"ácido sulfhídrico",group:16},
- {formula:"H2Se",element:"Se",name:"selenio",systematic:"seleniuro de hidrógeno",acid:"ácido selenhídrico",group:16},
- {formula:"H2Te",element:"Te",name:"teluro",systematic:"telururo de hidrógeno",acid:"ácido telurhídrico",group:16}
+ {formula:"HF",element:"F",name:"flúor",systematic:"fluoruro de hidrógeno",parentHydride:"fluorano",acid:"ácido fluorhídrico",group:17},
+ {formula:"HCl",element:"Cl",name:"cloro",systematic:"cloruro de hidrógeno",parentHydride:"clorano",acid:"ácido clorhídrico",group:17},
+ {formula:"HBr",element:"Br",name:"bromo",systematic:"bromuro de hidrógeno",parentHydride:"bromano",acid:"ácido bromhídrico",group:17},
+ {formula:"HI",element:"I",name:"yodo",systematic:"yoduro de hidrógeno",parentHydride:"yodano",acid:"ácido yodhídrico",group:17},
+ {formula:"H2S",element:"S",name:"azufre",systematic:"sulfuro de hidrógeno",parentHydride:"sulfano",acid:"ácido sulfhídrico",group:16},
+ {formula:"H2Se",element:"Se",name:"selenio",systematic:"seleniuro de hidrógeno",parentHydride:"selano",acid:"ácido selenhídrico",group:16},
+ {formula:"H2Te",element:"Te",name:"teluro",systematic:"telururo de hidrógeno",parentHydride:"telano",acid:"ácido telurhídrico",group:16}
 ];
 export function hydrogenNonmetalCompound(h){
  const upper=h.group<=15;
@@ -135,14 +135,14 @@ export function hydrogenNonmetalCompound(h){
   special:true,hydrogenSpecial:true,family:"hydrogen",
   cation:{symbol:"H",name:"hidrógeno",charge:upper?-1:1,polyatomic:false},
   anion:{symbol:h.element,name:h.name,charge:upper?h.oxidation:(h.group===17?-1:-2),polyatomic:false},
-  formula:h.formula,stockName:h.traditional||h.systematic,systematicName:h.systematic,traditionalName:h.traditional||null,acidName:h.acid||null,
+  formula:h.formula,stockName:h.traditional||h.parentHydride||h.systematic,systematicName:h.systematic,traditionalName:h.traditional||null,parentHydrideName:h.parentHydride||null,acidName:h.acid||null,
   explanation:upper?[
    `1. Es un compuesto binario del hidrógeno con un elemento del grupo ${h.group}.`,
    `2. Su fórmula es ${h.formula} y por nomenclatura de composición se nombra ${h.systematic}.`,
    `3. También presenta el nombre tradicional ${h.traditional}.`
   ]:[
    `1. Es un compuesto binario del hidrógeno con un elemento del grupo ${h.group}.`,
-   `2. Como compuesto puro/gaseoso se nombra ${h.systematic}.`,
+   `2. Como compuesto puro/gaseoso puede nombrarse ${h.systematic}; como hidruro progenitor se denomina ${h.parentHydride}.`,
    `3. Si aparece ${h.formula}(aq), «(aq)» indica que está en disolución acuosa y entonces se denomina ${h.acid}.`
   ]
  };
