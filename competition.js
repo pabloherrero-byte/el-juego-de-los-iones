@@ -1,4 +1,4 @@
-import{randomCompound,checkFormulaAnswer,checkNameAnswer,diagnoseFormulaError,explainName,allowedNomenclatures}from"./chemistry.js";
+import{randomCompound,checkFormulaAnswer,checkNameAnswer,diagnoseFormulaError,explainName,allowedNomenclatures}from"./chemistry.js?v=20260929-1700";
 export function createGame(config={}){const durationSeconds=Number(config.durationSeconds??300);return{config:{durationSeconds,mode:"mixed",difficulty:"medium",family:"all",workMode:"practice",questionCount:10,...config},score:0,correct:0,incorrect:0,answered:0,answers:[],streak:0,bestStreak:0,current:null,remaining:durationSeconds,finished:false,saved:false}}
 export function nextChallenge(game){
  let compound,type=game.config.mode,tries=0;
