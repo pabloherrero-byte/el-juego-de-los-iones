@@ -17,7 +17,7 @@ export const ANIONS=[
 ["NO2","nitrito",-1,true,"oxosalt",2],["SO3","sulfito",-2,true,"oxosalt",2],["PO4","fosfato",-3,true,"oxosalt",2],
 ["PO3","fosfito",-3,true,"oxosalt",2],["ClO","hipoclorito",-1,true,"oxosalt",3],["ClO2","clorito",-1,true,"oxosalt",3],
 ["ClO3","clorato",-1,true,"oxosalt",3],["ClO4","perclorato",-1,true,"oxosalt",3],
-["MnO4","permanganato",-1,true,"oxosalt",4],["CrO4","cromato",-2,true,"oxosalt",4],["Cr2O7","dicromato",-2,true,"oxosalt",4],
+["MnO4","permanganato",-1,true,"oxosalt",4],["CrO4","cromato",-2,true,"oxosalt",4],["Cr2O7","dicromato",-2,true,"oxosalt",3],
 ["HSO4","hidrogenosulfato",-1,true,"acidsalt",1],["HS","hidrogenosulfuro",-1,true,"acidsalt",1],
 ["H2PO4","dihidrogenofosfato",-1,true,"acidsalt",2],["HPO4","hidrogenofosfato",-2,true,"acidsalt",2],
 ["HCO3","hidrogenocarbonato",-1,true,"acidsalt",3],["HSO3","hidrogenosulfito",-1,true,"acidsalt",3]
