@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "Si utiliza este software, cite la versión archivada indicada en este archivo."
+title: "El juego de los iones"
+type: software
+authors:
+  - family-names: "Herrero Teijón"
+    given-names: "Pablo"
+version: 1.0.0
+date-released: 2026-09-29
+url: "https://pabloherrero-byte.github.io/el-juego-de-los-iones/"
+repository-code: "https://github.com/pabloherrero-byte/el-juego-de-los-iones"
+abstract: >-
+  Aplicación educativa gamificada de Física y Química para practicar iones,
+  formulación y nomenclatura inorgánica, con niveles progresivos, puntuación,
+  historial y herramientas de seguimiento para el profesorado.
+keywords:
+  - química
+  - formulación
+  - nomenclatura
+  - iones
+  - gamificación
+  - educación secundaria
+  - Física y Química
