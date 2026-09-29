@@ -6,6 +6,7 @@ Aplicación educativa gamificada de Física y Química para practicar **iones, f
 
 - Aplicación web: https://pabloherrero-byte.github.io/el-juego-de-los-iones/
 - Recurso educativo en Procomún (INTEF): https://procomun.intef.es/ode/view/es_2026092812_9142902
+- Versión 1.0.0 archivada en Zenodo: https://doi.org/10.5281/zenodo.23034892
 
 ## Finalidad educativa
 
@@ -32,7 +33,7 @@ El recurso está pensado principalmente para Educación Secundaria y permite pra
 
 ## Uso educativo y transferencia
 
-El recurso se publica de forma abierta para facilitar su utilización y reutilización por profesorado y alumnado. También está disponible como recurso educativo en **Procomún (INTEF)**.
+El recurso se publica de forma abierta para facilitar su utilización y reutilización por profesorado y alumnado. También está disponible como recurso educativo en **Procomún (INTEF)** y la versión estable 1.0.0 está preservada en **Zenodo** con DOI persistente.
 
 Para documentar su transferencia educativa se recomienda conservar evidencias de utilización en centros (periodo, materias, cursos, número de docentes y alumnado) y, cuando sea posible, resultados agregados de aprendizaje y valoración. No deben publicarse datos personales del alumnado.
 
@@ -46,8 +47,12 @@ Los datos de juego se almacenan en el navegador del dispositivo y no se envían 
 
 ## Cómo citar
 
-La versión estable del software se archivará en Zenodo. Cuando exista DOI, esta sección se actualizará con la referencia definitiva. El archivo `CITATION.cff` proporciona metadatos de citación legibles por GitHub y servicios compatibles.
+Herrero Teijón, P. (2026). *El juego de los iones* (v1.0.0) [Software]. Zenodo. https://doi.org/10.5281/zenodo.23034892
+
+DOI: **10.5281/zenodo.23034892**
+
+El archivo `CITATION.cff` proporciona los metadatos de citación legibles por GitHub y servicios compatibles.
 
 ## Licencia
 
-Antes de publicar la versión 1.0.0 se incorporará una licencia de software explícita. La licencia de los materiales educativos publicados por separado puede ser distinta de la licencia del código fuente.
+El código fuente de **El juego de los iones** se distribuye bajo la **licencia MIT**. Consulte el archivo `LICENSE` del repositorio. Los materiales educativos publicados por separado pueden estar sujetos a una licencia distinta.
