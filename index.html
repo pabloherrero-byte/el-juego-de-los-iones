@@ -10,10 +10,22 @@
 <section id="ranking" class="view"><h2>🏆 Clasificación</h2><div id="rankingList"></div><button id="clearRanking">Borrar puntuaciones</button></section></main>
 <footer>Aplicación educativa · Física y Química · <span id="visitorCounter">👥 Visitas: <span id="gc-count">—</span></span> · <a href="./privacy.html">Privacidad</a> · <a href="./terms.html">Condiciones</a></footer><script type="module" src="./app.js"></script><script data-goatcounter="https://pherrerot.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><script>
 (function(){
- const target=document.getElementById("gc-count");
- fetch("https://pherrerot.goatcounter.com/counter/%2F.json")
-  .then(function(r){if(!r.ok)throw new Error("counter");return r.json()})
-  .then(function(d){if(d&&d.count!=null)target.textContent=String(d.count).replace(/^\s+|\s+$/g,"")})
-  .catch(function(){target.textContent="—"});
+ var target=document.getElementById("gc-count"),tries=0;
+ var timer=setInterval(function(){
+  tries++;
+  if(window.goatcounter&&window.goatcounter.get_data){
+   clearInterval(timer);
+   var path=window.goatcounter.get_data().p;
+   var r=new XMLHttpRequest();
+   r.addEventListener("load",function(){
+    try{
+     var d=JSON.parse(this.responseText);
+     if(d&&d.count!=null)target.textContent=d.count;
+    }catch(e){}
+   });
+   r.open("GET","https://pherrerot.goatcounter.com/counter/"+encodeURIComponent(path)+".json");
+   r.send();
+  }else if(tries>100){clearInterval(timer)}
+ },100);
 })();
 </script></body></html>
