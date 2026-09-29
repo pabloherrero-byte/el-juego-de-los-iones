@@ -173,7 +173,11 @@ export function getSystematicName(c,a){
 export function allowedNomenclatures(compound){
  if(compound.peroxide)return["formula","stock","systematic"];
  if(compound.metalHydride)return["formula","stock","systematic"];
- if(compound.hydrogenSpecial)return["formula","systematic"];
+ if(compound.hydrogenSpecial){
+   // Grupos 13-15: en el juego se trabaja la fórmula y el nombre específico (borano, metano, silano...).
+   // Grupos 16-17: se mantiene la nomenclatura de composición del compuesto de hidrógeno.
+   return compound.traditionalName?["formula","stock"]:["formula","systematic"];
+ }
  if(compound.special)return["formula","systematic"];
  if(compound.anion?.family==="acidsalt")return["formula","stock"];
  return["formula","stock",...(compound.systematicName?["systematic"]:[])];
